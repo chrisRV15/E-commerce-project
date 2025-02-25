@@ -1,13 +1,19 @@
 import Header from "./components/Header";
 import FeaturedProducts from "./components/FeaturedProducts";
+import Slogan from "./components/Slogan";
 
 function App() {
   return (
     <>
       <Header />
-      <main>
-        <FeaturedProducts />
-      </main>
+      <>
+        <div>
+          <Slogan />
+        </div>
+        <div>
+          <FeaturedProducts />
+        </div>
+      </>
     </>
   );
 }
