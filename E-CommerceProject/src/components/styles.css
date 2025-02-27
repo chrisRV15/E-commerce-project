@@ -1,7 +1,12 @@
+*{
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+
 
 .zoom-image {
     animation: zoom 20s infinite; 
   }
+  
   
   @keyframes zoom {
     0% {
@@ -33,3 +38,27 @@
   .carousel:hover .zoom-image {
     animation-play-state: paused;
   }
+
+  .display-3{
+    color: black;
+  }
+
+  .hover-grow {
+    transition: all 0.3s ease;
+  }
+  
+  .hover-grow:hover {
+    transform: scale(1.05);
+  }
+
+  .card{
+    overflow: hidden; 
+  }
+
+  .btn:hover{
+    background-color: white;
+    border-color: black;
+    border-radius: 10px;
+    color: black;
+  }
+

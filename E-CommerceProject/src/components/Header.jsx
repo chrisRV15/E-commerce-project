@@ -57,8 +57,12 @@ const Header = () => {
               </button>
             </form>
             <div className="flex items-center">
-              <button className="text-gray-600 hover:text-gray-800 mr-4"></button>
-              <button className="md:hidden text-gray-600 hover:text-gray-800"></button>
+              <button className="btn btn-outline-dark position-relative">
+                <i className="fa-solid fa-cart-shopping"></i>
+                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                  0 {}
+                </span>
+              </button>
             </div>
           </div>
         </div>
