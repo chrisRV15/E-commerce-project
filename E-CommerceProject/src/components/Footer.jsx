@@ -24,7 +24,7 @@ const Footer = () => {
           </div>
 
           <div className="col-md-4 mb-4">
-            <h5>Contac Us</h5>
+            <h5>Contact Us</h5>
             <ul className="list-unstyled">
               <li>
                 <i className="fas fa-home me-2"></i> New York, NY 10012, US

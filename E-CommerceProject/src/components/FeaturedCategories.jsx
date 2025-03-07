@@ -2,14 +2,15 @@ import React from "react";
 
 const FeaturedCategories = () => {
   const categories = [
-    { name: "Men's Watches" },
-    { name: "Women's Watches" },
-    { name: "Luxury Watches" },
+    { name: "Rolex" },
+    { name: "Omega" },
+    { name: "Audemars Piguet" },
+    { name: "Patek Philippe" },
   ];
 
   return (
     <section className="container my-5 p-4">
-      <h2 className="text-center mb-4">SHOP BY CATEGORY</h2>
+      <h2 className="text-center mb-4">SHOP BY BRAND</h2>
       <div className="d-flex justify-content-center flex-wrap gap-3">
         {categories.map((category, index) => (
           <div

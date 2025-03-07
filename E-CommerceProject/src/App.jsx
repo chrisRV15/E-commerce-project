@@ -1,28 +1,15 @@
-import Header from "./components/Header";
-import FeaturedProducts from "./components/FeaturedProducts";
-import Slogan from "./components/Slogan";
-import FeaturedCategories from "./components/FeaturedCategories";
-import Footer from "./components/Footer";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
+import HomePage from "./Pages/HomePage";
+import ProductsBrowser from "./Pages/ProductsBrowser";
 
 function App() {
   return (
-    <>
-      <Header />
-      <>
-        <div>
-          <Slogan />
-        </div>
-        <div>
-          <FeaturedProducts />
-        </div>
-        <div>
-          <FeaturedCategories />
-        </div>
-        <div>
-          <Footer />
-        </div>
-      </>
-    </>
+    <Router>
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<ProductsBrowser />} />
+      </Routes>
+    </Router>
   );
 }
 
