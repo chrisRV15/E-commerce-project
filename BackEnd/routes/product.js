@@ -15,7 +15,7 @@ router.get ("/", async (req, res) => {
 //Get a single product by ID
 router.get("/:id", async (req, res) => {
     let collection = await db.collection("products");
-    let query = { _id: ObjectId(req.params.id) };
+    let query = { _id: new ObjectId(req.params.id) };
     let results = await collection.findOne(query);
 
     if (!results) res.send("Not Found").status(404);

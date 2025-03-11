@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles.css";
 
 const ProductPage = () => {
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [brands, setBrands] = useState([]);
@@ -11,7 +13,7 @@ const ProductPage = () => {
   const [priceRange, setPriceRange] = useState([0, 10000]);
 
   useEffect(() => {
-    fetch("http://localhost:5050/product")
+    fetch("http://localhost:5050/product/")
       .then((res) => res.json())
       .then((data) => {
         setProducts(data);
@@ -63,6 +65,10 @@ const ProductPage = () => {
     );
 
     setFilteredProducts(filtered);
+  };
+
+  const goToProductDetail = (productId) => {
+    navigate(`/product/${productId}`);
   };
 
   return (
@@ -138,6 +144,7 @@ const ProductPage = () => {
                   <div
                     className="card h-100 shadow-sm border-0"
                     style={{ backgroundColor: "#ECECEC" }}
+                    onClick={() => goToProductDetail(product._id)}
                   >
                     <div style={{ position: "relative", height: "200px" }}>
                       <img
@@ -157,8 +164,14 @@ const ProductPage = () => {
                       <p className="card-text fw-bold">${product.price}</p>
                     </div>
                     <div className="card-footer bg-transparent border-top-0">
-                      <button className="btn btn-dark w-100 fw-semibold">
-                        Add to Cart
+                      <button
+                        className="btn btn-dark w-100 fw-semibold"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          goToProductDetail(product._id);
+                        }}
+                      >
+                        View Details
                       </button>
                     </div>
                   </div>

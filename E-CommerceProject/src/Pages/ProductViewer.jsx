@@ -1,55 +1,119 @@
+import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import "../styles.css";
 
 const ProductViewer = () => {
+  const { productId } = useParams();
+  const navigate = useNavigate();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`http://localhost:5050/product/${productId}`)
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error("Product not found");
+        }
+        return res.json();
+      })
+      .then((data) => {
+        setProduct(data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Error fetching product:", error);
+        setError(error.message);
+        setLoading(false);
+      });
+  }, [productId]);
+
+  const handleGoBack = () => {
+    navigate(-1);
+  };
+
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div className="container py-5 text-center">
+          <div className="spinner-border" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+          <p className="mt-3">Loading product details...</p>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
+  if (error || !product) {
+    return (
+      <>
+        <Header />
+        <div className="container py-5 text-center">
+          <div className="alert alert-danger" role="alert">
+            {error || "Product not found"}
+          </div>
+          <button className="btn btn-primary mt-3" onClick={handleGoBack}>
+            Back to Products
+          </button>
+        </div>
+        <Footer />
+      </>
+    );
+  }
+
   return (
     <>
       <Header />
-      <div className="container mx-auto px-4 py-8">
-        <div className="grind md: grid-cols-2 gap-8">
-          <div className="flex justify-center items-center">
+      <div className="container py-4">
+        <div className="row ">
+          <div className="col-12 col-md-6 d-flex justify-content-center align-items-center ">
             <img
-              src="/placeholder.svg"
-              alt="Product"
-              className="rounded-lg shadow-md max-h-[600px] w-auto object-cover"
+              src={product.image || "/placeholder.svg"}
+              alt={product.name || "Product"}
+              className="card h-100 shadow-sm border-0"
+              style={{
+                maxHeight: "500px",
+                objectFit: "contain",
+                backgroundColor: "#ECECEC",
+              }}
             />
           </div>
-          <div className="flex flex-col space-y-4">
-            <div className="flex flex-col space-y-4">
-              <div className="text-sm text-muted-foreground uppercae tracking-wide">
-                Brand
-              </div>
-              <h1 className="text-3xl font-semibold">Product Name</h1>
-              <div className="text-2xl font-semibold mt-2">price</div>
-              <div className="border-t border-b py-4 my-4">
-                <div className="text-muted-foreground">
-                  <p className="text-muted-foreground">Luxury Watch</p>
-                </div>
-              </div>
 
-              <div className="space-y-4">
-                <div className="flex items-center space-x-2">
-                  <div className="font-medium">Quantity:</div>
-                  <div className="flex items-center"></div>
-                </div>
-              </div>
+          <div className="col-12 col-md-6 d-flex flex-column ">
+            <div className="small text-muted text-uppercase fw-semibold">
+              {product.brand}
+            </div>
+            <h1 className="fs-3 fw-semibold">{product.name}</h1>
+            <div className="fs-4 fw-semibold mt-2">${product.price}</div>
+            <p className="text-muted">
+              This watch features exceptional quality and craftsmanship.
+            </p>
 
-              <div className="text-sm text-muted-foreground mt-4">
-                <p>• Free shipping on orders over $50</p>
-                <p>• 30-day money-back guarantee</p>
-                <p>• 24/7 customer support</p>
-              </div>
-              <div className="mt-6">
-                <h3 className="font-medium mb-2">Product Details:</h3>
-                <ul className="list-disc pl-5 text-sm text-muted-foreground space-y-1">
-                  <li>High-quality materials</li>
-                  <li>Durable construction</li>
-                  <li>Versatile design</li>
-                  <li>Easy to clean and maintain</li>
-                  <li>Available in multiple colors (shown: Classic Black)</li>
-                </ul>
-              </div>
+            <div className="d-flex align-items-center mt-3">
+              <button className="btn btn-dark px-4 py-2 fw-semibold">
+                Add to Cart
+              </button>
+            </div>
+
+            <div className="small text-muted mt-3">
+              <p>• Free shipping on orders over $50</p>
+              <p>• 30-day money-back guarantee</p>
+              <p>• 24/7 customer support</p>
+            </div>
+
+            <div className="mt-4">
+              <h3 className="fw-medium mb-2">Product Details:</h3>
+              <ul className="text-muted small ps-4">
+                <li>High-quality materials</li>
+                <li>Durable construction</li>
+                <li>Versatile design</li>
+                <li>Water-resistant</li>
+              </ul>
             </div>
           </div>
         </div>
