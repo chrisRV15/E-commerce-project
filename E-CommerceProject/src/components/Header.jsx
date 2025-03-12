@@ -9,7 +9,6 @@ const Header = () => {
           <a className="navbar-brand" href="#">
             RealValue
           </a>
-          {/* Navbar Toggler Button */}
           <button
             className="navbar-toggler"
             type="button"
@@ -35,29 +34,18 @@ const Header = () => {
                 </Link>
               </li>
               <li className="nav-item">
-                <Link className="nav-link" to="/view-product">
-                  About
+                <Link className="nav-link" to="/account">
+                  Contact
                 </Link>
               </li>
-              <li className="nav-item">
-                <a className="nav-link" href="#">
-                  Contact
-                </a>
-              </li>
             </ul>
-            {/* Search Form */}
-            <form className="d-flex" role="search">
-              <input
-                className="form-control me-2"
-                type="search"
-                placeholder="Search For Products"
-                aria-label="Search"
-              />
-              <button className="btn btn-outline-success" type="submit">
-                Search
-              </button>
-            </form>
             <div className="flex items-center">
+              <Link
+                to="/login"
+                className="btn btn-outline-dark position-relative"
+              >
+                <i class="fa-solid fa-circle-user"></i>
+              </Link>
               <button className="btn btn-outline-dark position-relative">
                 <i className="fa-solid fa-cart-shopping"></i>
                 <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">

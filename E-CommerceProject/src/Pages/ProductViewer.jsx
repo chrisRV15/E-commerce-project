@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import "../styles.css";
 
 const ProductViewer = () => {
   const { productId } = useParams();
@@ -75,7 +76,7 @@ const ProductViewer = () => {
             <img
               src={product.image || "/placeholder.svg"}
               alt={product.name || "Product"}
-              className="card h-100 shadow-sm border-0"
+              className="card h-100 shadow-sm border-0 img-fluid hover-grow"
               style={{
                 maxHeight: "500px",
                 objectFit: "contain",
@@ -90,7 +91,7 @@ const ProductViewer = () => {
             </div>
             <h1 className="fs-3 fw-semibold">{product.name}</h1>
             <div className="fs-4 fw-semibold mt-2">${product.price}</div>
-            <p className="text-muted">
+            <p className="fw-medium">
               This watch features exceptional quality and craftsmanship.
             </p>
 
@@ -101,7 +102,7 @@ const ProductViewer = () => {
             </div>
 
             <div className="small text-muted mt-3">
-              <p>• Free shipping on orders over $50</p>
+              <p>• Free shipping on orders over $349.99</p>
               <p>• 30-day money-back guarantee</p>
               <p>• 24/7 customer support</p>
             </div>

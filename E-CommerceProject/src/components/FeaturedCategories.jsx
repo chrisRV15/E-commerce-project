@@ -31,7 +31,7 @@ const FeaturedCategories = () => {
               (e.currentTarget.style.backgroundColor = "#ECECEC")
             }
           >
-            <a href="#" className="text-decoration-none">
+            <a className="text-decoration-none">
               <h6 className="text-dark fw-semibold m-0">{category.name}</h6>
             </a>
           </div>

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../styles.css";
 
 const watches = [
@@ -68,20 +69,25 @@ const FeaturedProducts = () => {
                 className="card h-100 shadow-sm border-0"
                 style={{ backgroundColor: "#ECECEC" }}
               >
-                <img
-                  src={watch.image}
-                  alt={watch.name}
-                  className="card-img-top img-fluid hover-grow"
-                  style={{ height: "300px", objectFit: "cover" }}
-                />
+                <Link to="/products">
+                  <img
+                    src={watch.image}
+                    alt={watch.name}
+                    className="card-img-top img-fluid hover-grow"
+                    style={{ height: "300px", objectFit: "cover" }}
+                  />
+                </Link>
                 <div className="card-body">
                   <h3 className="card-title fs-5 fw-semibold">{watch.name}</h3>
                   <p className="card-text text-semibold">
                     ${watch.price.toFixed(2)}
                   </p>
-                  <button className="btn btn-dark w-100 fw-semibold">
-                    Add to Cart
-                  </button>
+                  <Link
+                    className="btn btn-dark w-100 fw-semibold"
+                    to="/products"
+                  >
+                    View Browser
+                  </Link>
                 </div>
               </div>
             </div>
