@@ -1,6 +1,46 @@
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 
 const LoginForm = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault(); // Fixed typo here
+    setError("");
+
+    try {
+      const response = await fetch("http://localhost:5050/user/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || "Login failed");
+        }
+
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        console.log("You are login");
+
+        navigate("/");
+      } else {
+        const text = await response.text();
+        console.error("Received non-JSON response:", text);
+        throw new Error("Server returned an unexpected response format");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setError(error.message);
+    }
+  };
   return (
     <>
       <div
@@ -14,7 +54,9 @@ const LoginForm = () => {
           <div className="card-body p-4">
             <h2 className="card-title text-center mb-4">Account Login</h2>
 
-            <form>
+            {error && <div className="alert alert-danger">{error}</div>}
+
+            <form onSubmit={handleLogin}>
               <div className="mb-3">
                 <label htmlFor="email" className="form-lable">
                   Email address
@@ -24,6 +66,8 @@ const LoginForm = () => {
                   className="form-control"
                   id="email"
                   placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -36,6 +80,8 @@ const LoginForm = () => {
                   type="password"
                   className="form-control"
                   id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>

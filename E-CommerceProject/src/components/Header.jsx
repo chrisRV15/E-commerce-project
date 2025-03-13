@@ -1,7 +1,15 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 const Header = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  }, []);
+
   return (
     <>
       <nav className="navbar navbar-expand-lg bg-body-tertiary">
@@ -41,10 +49,13 @@ const Header = () => {
             </ul>
             <div className="flex items-center">
               <Link
-                to="/login"
+                to={isLoggedIn ? "/account" : "/login"}
                 className="btn btn-outline-dark position-relative"
               >
-                <i class="fa-solid fa-circle-user"></i>
+                <i
+                  class="fa-solid fa-circle-user"
+                  style={{ color: isLoggedIn ? "green" : "black" }}
+                ></i>
               </Link>
               <button className="btn btn-outline-dark position-relative">
                 <i className="fa-solid fa-cart-shopping"></i>
