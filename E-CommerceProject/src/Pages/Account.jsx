@@ -7,12 +7,21 @@ import "../styles.css";
 const Account = () => {
   const [activeTab, setActiveTab] = useState("account");
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        setLoading(true);
+        setError(null);
+
         const token = localStorage.getItem("token");
-        if (!token) return;
+        if (!token) {
+          setError("No authentication token found. Please log in again.");
+          setLoading(false);
+          return;
+        }
 
         const response = await fetch("http://localhost:5050/user/me", {
           method: "GET",
@@ -22,19 +31,41 @@ const Account = () => {
           },
         });
 
+        // For debugging
+        console.log("Response status:", response.status);
+
         const data = await response.json();
+        console.log("Response data:", data);
+
         if (response.ok) {
           setUser(data);
+        } else {
+          setError(data.message || "Failed to load user data");
+
+          // If token is invalid, clear it
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem("token");
+          }
         }
       } catch (error) {
         console.error("Error fetching user:", error);
+        setError("An error occurred while fetching user data");
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchUser();
   }, []);
 
-  if (!user) return <p>Loading...</p>;
+  if (loading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error}</p>;
+  if (!user)
+    return (
+      <p>
+        No user data available. Please <a href="/login">log in</a>.
+      </p>
+    );
 
   return (
     <>
@@ -84,22 +115,7 @@ const Account = () => {
 
             <div className="card border-0 shadow mt-4">
               <div className="card-body">
-                <h5 className="card-title fw-bold mb-3">Membership Details</h5>
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="text-muted">Plan</span>
-                  <span className="fw-bold">Premium</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="text-muted">Billing Cycle</span>
-                  <span className="fw-bold">Annual</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span className="text-muted">Next Payment</span>
-                  <span className="fw-bold">Oct 15, 2023</span>
-                </div>
-                <button className="btn btn-outline-primary w-100 mt-3">
-                  Manage Subscription
-                </button>
+                <button className="btn btn-dark w-100 mt-3">Log Off</button>
               </div>
             </div>
           </div>

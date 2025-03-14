@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { Link } from "react-router-dom";
 import "../styles.css";
 
 const ProductViewer = () => {
@@ -96,9 +97,12 @@ const ProductViewer = () => {
             </p>
 
             <div className="d-flex align-items-center mt-3">
-              <button className="btn btn-dark px-4 py-2 fw-semibold">
+              <Link
+                to="/shoppingcart"
+                className="btn btn-dark px-4 py-2 fw-semibold"
+              >
                 Add to Cart
-              </button>
+              </Link>
             </div>
 
             <div className="small text-muted mt-3">

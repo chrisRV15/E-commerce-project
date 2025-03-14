@@ -5,6 +5,7 @@ import ProductViewer from "./Pages/ProductViewer";
 import LoginRegister from "./Pages/Login&Register";
 import CreateAccount from "./Pages/CreateAccount";
 import Account from "./Pages/Account";
+import ShoppingCart from "./Pages/ShoppingCart";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/login" element={<LoginRegister />} />
         <Route path="/register" element={<CreateAccount />} />
         <Route path="/account" element={<Account />} />
+        <Route path="/shoppingcart" element={<ShoppingCart />} />
       </Routes>
     </Router>
   );

@@ -8,7 +8,7 @@ const LoginForm = () => {
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
-    e.preventDefault(); // Fixed typo here
+    e.preventDefault();
     setError("");
 
     try {

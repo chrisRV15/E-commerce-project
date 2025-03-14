@@ -2,6 +2,8 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import db from "../db/connection.js";
 import jwt from "jsonwebtoken";
+import { ObjectId } from 'mongodb';
+
 
 
 const router = express.Router();
@@ -38,6 +40,8 @@ router.post("/register", async  (req,res) =>{
         res.status(500).json({message: "Server error"});
     }
 });
+
+
 
 router.post("/login", async (req, res) => {
     const { email, password } = req.body;
@@ -82,25 +86,39 @@ router.post("/login", async (req, res) => {
     }
 });
 
-router.get("/me", async (req, res) => {
+const authenticateToken = (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1];
+    
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+    
     try {
-        const token = req.heards.authorization?.split(" ")[1]
-        if(!token) {
-            return res.status(401).json({ message: "Unauthorized"});
-        }
+      const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key");
+      req.user = decoded;
+      next();
+    } catch (error) {
+      return res.status(403).json({ message: "Invalid or expired token" });
+    }
+};
 
-        const decoded = jwt.verify(token, process.env.JWT_SECRET)
-        const collection = db.collection("users");
-        const user  = await collection.findOne({ _id: new ObjectId(decoded.userId)});
-
-        if (!user ) {
-            return res.status(404).json({ message: "User not found"});
-        }
-
-        res.json({ firstName: user.firstName, lastName: user.lastName, email: user.email});
-    }catch (error){
-        console.error(error);
-        res.status(500).json({message: "Server error"})
+router.get("/me", authenticateToken, async (req, res) => {
+    try {
+      const collection = db.collection("users");
+      const user = await collection.findOne({ _id: new ObjectId(req.user.userId) });
+      
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+      
+      res.json({ 
+        firstName: user.firstName, 
+        lastName: user.lastName, 
+        email: user.email 
+      });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ message: "Server error" });
     }
 });
 
