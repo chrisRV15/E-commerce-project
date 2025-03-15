@@ -6,20 +6,24 @@ import LoginRegister from "./Pages/Login&Register";
 import CreateAccount from "./Pages/CreateAccount";
 import Account from "./Pages/Account";
 import ShoppingCart from "./Pages/ShoppingCart";
+import CheckoutProcess from "./Pages/Checkout";
+import { CartProvider } from "./CartContext";
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/products" element={<ProductsBrowser />} />
-        <Route path="/product/:productId" element={<ProductViewer />} />
-        <Route path="/login" element={<LoginRegister />} />
-        <Route path="/register" element={<CreateAccount />} />
-        <Route path="/account" element={<Account />} />
-        <Route path="/shoppingcart" element={<ShoppingCart />} />
-      </Routes>
-    </Router>
+    <CartProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/products" element={<ProductsBrowser />} />
+          <Route path="/product/:productId" element={<ProductViewer />} />
+          <Route path="/login" element={<LoginRegister />} />
+          <Route path="/register" element={<CreateAccount />} />
+          <Route path="/account" element={<Account />} />
+          <Route path="/shoppingcart" element={<ShoppingCart />} />
+        </Routes>
+      </Router>
+    </CartProvider>
   );
 }
 

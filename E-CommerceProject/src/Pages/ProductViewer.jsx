@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { Link } from "react-router-dom";
+import { useCart } from "../CartContext";
 import "../styles.css";
 
 const ProductViewer = () => {
@@ -11,6 +12,7 @@ const ProductViewer = () => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     setLoading(true);
@@ -34,6 +36,12 @@ const ProductViewer = () => {
 
   const handleGoBack = () => {
     navigate(-1);
+  };
+
+  const handleAddToCart = () => {
+    if (product) {
+      addToCart(product); // Add product to cart and redirect
+    }
   };
 
   if (loading) {
@@ -97,12 +105,12 @@ const ProductViewer = () => {
             </p>
 
             <div className="d-flex align-items-center mt-3">
-              <Link
-                to="/shoppingcart"
+              <button
+                onClick={handleAddToCart}
                 className="btn btn-dark px-4 py-2 fw-semibold"
               >
                 Add to Cart
-              </Link>
+              </button>
             </div>
 
             <div className="small text-muted mt-3">

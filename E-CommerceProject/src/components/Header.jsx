@@ -1,9 +1,12 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
+import { useCart } from "../CartContext";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { getCartItemCount } = useCart();
+  const cartItemCount = getCartItemCount();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -57,12 +60,17 @@ const Header = () => {
                   style={{ color: isLoggedIn ? "green" : "black" }}
                 ></i>
               </Link>
-              <button className="btn btn-outline-dark position-relative">
+              <Link
+                to="/shoppingcart"
+                className="btn btn-outline-dark position-relative"
+              >
                 <i className="fa-solid fa-cart-shopping"></i>
-                <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
-                  0 {}
-                </span>
-              </button>
+                {cartItemCount > 0 && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
             </div>
           </div>
         </div>

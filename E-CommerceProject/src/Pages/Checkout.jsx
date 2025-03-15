@@ -446,3 +446,5 @@ const CheckoutProcess = () => {
     </>
   );
 };
+
+export default CheckoutProcess;
