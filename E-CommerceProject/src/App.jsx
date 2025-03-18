@@ -7,6 +7,7 @@ import CreateAccount from "./Pages/CreateAccount";
 import Account from "./Pages/Account";
 import ShoppingCart from "./Pages/ShoppingCart";
 import CheckoutProcess from "./Pages/Checkout";
+import OrderDetails from "./Pages/OrderDetail";
 import { CartProvider } from "./CartContext";
 
 function App() {
@@ -21,6 +22,8 @@ function App() {
           <Route path="/register" element={<CreateAccount />} />
           <Route path="/account" element={<Account />} />
           <Route path="/shoppingcart" element={<ShoppingCart />} />
+          <Route path="/checkout" element={<CheckoutProcess />} />
+          <Route path="/order/:orderId" element={<OrderDetails />} />
         </Routes>
       </Router>
     </CartProvider>

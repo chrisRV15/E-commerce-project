@@ -1,10 +1,136 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../CartContext";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "../styles.css";
 
 const CheckoutProcess = () => {
-  const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(1);
+  const { cart, getCartTotal, clearCart } = useCart();
+  const navigate = useNavigate();
+  const [shippingAddress, setShippingAddress] = useState({
+    fullName: " ",
+    address: " ",
+    city: " ",
+    state: " ",
+    zipCode: " ",
+    country: " ",
+  });
+
+  const [paymentInfo, setPaymentInfo] = useState({
+    cardholderName: " ",
+    cardNumber: " ",
+    expiryDate: " ",
+    cvv: " ",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Handle shipping form changes
+  const handleShippingChange = (e) => {
+    const { name, value } = e.target;
+    setShippingAddress((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  // Handle payment form changes
+  const handlePaymentChange = (e) => {
+    const { name, value } = e.target;
+    setPaymentInfo((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleSubmitOrder = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    // Validate cart has items
+    if (cart.length === 0) {
+      setError("Your cart is empty");
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Please log in to complete your order");
+        navigate("/login");
+        return;
+      }
+
+      // Format items for the API
+      const items = cart.map((item) => ({
+        productId: item.id,
+        quantity: item.quantity,
+        price: item.price,
+      }));
+
+      // Create order object
+      const orderData = {
+        items,
+        shippingAddress,
+        paymentInfo: {
+          // In a real app, you would handle payment securely
+          // For now, just indicate payment method
+          method: "credit_card",
+          // Don't send actual card details to your server!
+          last4Digits: paymentInfo.cardNumber.slice(-4),
+        },
+      };
+
+      // Send to your API
+      const response = await fetch("http://localhost:5050/order", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Failed to create order");
+      }
+
+      // On success
+      clearCart();
+      // Navigate to order confirmation
+      navigate(`/order/${data.orderId}`);
+    } catch (error) {
+      console.error("Error creating order:", error);
+      setError(
+        error.message || "An error occurred while processing your order"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleStepSubmit = (e) => {
+    e.preventDefault();
+    if (currentStep < 3) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const goBack = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
+  };
+
   return (
     <>
       /*
@@ -12,13 +138,15 @@ const CheckoutProcess = () => {
       <div className="container py-5">
         <h1 className="mb-4 fw-bold">Checkout</h1>
 
+        {error && <div className="error-message">{error}</div>}
+
         {/* Checkout Progress */}
         <div className="mb-5">
           <div className="row text-center">
             <div className="col-4">
               <div
                 className={`rounded-circle mx-auto d-flex align-items-center justify-content-center ${
-                  currentStep >= 1 ? "bg-primary text-white" : "bg-light"
+                  currentStep >= 1 ? "bg-dark text-white" : "bg-light"
                 }`}
                 style={{ width: "40px", height: "40px" }}
               >
@@ -29,7 +157,7 @@ const CheckoutProcess = () => {
             <div className="col-4">
               <div
                 className={`rounded-circle mx-auto d-flex align-items-center justify-content-center ${
-                  currentStep >= 2 ? "bg-primary text-white" : "bg-light"
+                  currentStep >= 2 ? "bg-dark text-white" : "bg-light"
                 }`}
                 style={{ width: "40px", height: "40px" }}
               >
@@ -40,7 +168,7 @@ const CheckoutProcess = () => {
             <div className="col-4">
               <div
                 className={`rounded-circle mx-auto d-flex align-items-center justify-content-center ${
-                  currentStep >= 3 ? "bg-primary text-white" : "bg-light"
+                  currentStep >= 3 ? "bg-dark text-white" : "bg-light"
                 }`}
                 style={{ width: "40px", height: "40px" }}
               >
@@ -63,54 +191,26 @@ const CheckoutProcess = () => {
 
         <div className="row g-5">
           <div className="col-md-8">
-            <form onSubmit={handleSubmit}>
-              {/* Step 1: Shipping Information */}
-              {currentStep === 1 && (
+            {/* Step 1: Shipping Information */}
+            {currentStep === 1 && (
+              <form onSubmit={handleStepSubmit}>
                 <div className="card">
                   <div className="card-header bg-white">
                     <h3 className="fs-5 mb-0">Shipping Information</h3>
                   </div>
                   <div className="card-body">
                     <div className="row g-3">
-                      <div className="col-md-6">
-                        <label htmlFor="firstName" className="form-label">
-                          First Name
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="firstName"
-                          name="firstName"
-                          value={formData.firstName}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
-                      <div className="col-md-6">
-                        <label htmlFor="lastName" className="form-label">
-                          Last Name
-                        </label>
-                        <input
-                          type="text"
-                          className="form-control"
-                          id="lastName"
-                          name="lastName"
-                          value={formData.lastName}
-                          onChange={handleInputChange}
-                          required
-                        />
-                      </div>
                       <div className="col-12">
-                        <label htmlFor="email" className="form-label">
-                          Email
+                        <label htmlFor="fullName" className="form-label">
+                          Full Name
                         </label>
                         <input
-                          type="email"
+                          type="text"
                           className="form-control"
-                          id="email"
-                          name="email"
-                          value={formData.email}
-                          onChange={handleInputChange}
+                          id="fullName"
+                          name="fullName"
+                          value={shippingAddress.fullName}
+                          onChange={handleShippingChange}
                           required
                         />
                       </div>
@@ -123,8 +223,8 @@ const CheckoutProcess = () => {
                           className="form-control"
                           id="address"
                           name="address"
-                          value={formData.address}
-                          onChange={handleInputChange}
+                          value={shippingAddress.address}
+                          onChange={handleShippingChange}
                           required
                         />
                       </div>
@@ -137,8 +237,8 @@ const CheckoutProcess = () => {
                           className="form-control"
                           id="city"
                           name="city"
-                          value={formData.city}
-                          onChange={handleInputChange}
+                          value={shippingAddress.city}
+                          onChange={handleShippingChange}
                           required
                         />
                       </div>
@@ -150,8 +250,8 @@ const CheckoutProcess = () => {
                           className="form-select"
                           id="state"
                           name="state"
-                          value={formData.state}
-                          onChange={handleInputChange}
+                          value={shippingAddress.state}
+                          onChange={handleShippingChange}
                           required
                         >
                           <option value="">Choose...</option>
@@ -171,8 +271,8 @@ const CheckoutProcess = () => {
                           className="form-control"
                           id="zipCode"
                           name="zipCode"
-                          value={formData.zipCode}
-                          onChange={handleInputChange}
+                          value={shippingAddress.zipCode}
+                          onChange={handleShippingChange}
                           required
                         />
                       </div>
@@ -184,8 +284,8 @@ const CheckoutProcess = () => {
                           className="form-select"
                           id="country"
                           name="country"
-                          value={formData.country}
-                          onChange={handleInputChange}
+                          value={shippingAddress.country}
+                          onChange={handleShippingChange}
                           required
                         >
                           <option value="United States">United States</option>
@@ -197,10 +297,17 @@ const CheckoutProcess = () => {
                     </div>
                   </div>
                 </div>
-              )}
-
-              {/* Step 2: Payment Information */}
-              {currentStep === 2 && (
+                <div className="d-flex justify-content-between mt-4">
+                  <div></div>
+                  <button type="submit" className="btn btn-primary">
+                    Continue
+                  </button>
+                </div>
+              </form>
+            )}
+            {/* Step 2: Payment Information */}
+            {currentStep === 2 && (
+              <form onSubmit={handleStepSubmit}>
                 <div className="card">
                   <div className="card-header bg-white">
                     <h3 className="fs-5 mb-0">Payment Information</h3>
@@ -208,16 +315,16 @@ const CheckoutProcess = () => {
                   <div className="card-body">
                     <div className="row g-3">
                       <div className="col-12">
-                        <label htmlFor="cardName" className="form-label">
-                          Name on Card
+                        <label htmlFor="cardholderName" className="form-label">
+                          Cardholder Name
                         </label>
                         <input
                           type="text"
                           className="form-control"
-                          id="cardName"
-                          name="cardName"
-                          value={formData.cardName}
-                          onChange={handleInputChange}
+                          id="cardholderName"
+                          name="cardholderName"
+                          value={paymentInfo.cardholderName}
+                          onChange={handlePaymentChange}
                           required
                         />
                       </div>
@@ -226,32 +333,30 @@ const CheckoutProcess = () => {
                           Card Number
                         </label>
                         <div className="input-group">
-                          <span className="input-group-text">
-                            <CreditCard size={18} />
-                          </span>
+                          <span className="input-group-text">💳</span>
                           <input
                             type="text"
                             className="form-control"
                             id="cardNumber"
                             name="cardNumber"
-                            value={formData.cardNumber}
-                            onChange={handleInputChange}
+                            value={paymentInfo.cardNumber}
+                            onChange={handlePaymentChange}
                             placeholder="XXXX XXXX XXXX XXXX"
                             required
                           />
                         </div>
                       </div>
                       <div className="col-md-6">
-                        <label htmlFor="expDate" className="form-label">
+                        <label htmlFor="expiryDate" className="form-label">
                           Expiration Date
                         </label>
                         <input
                           type="text"
                           className="form-control"
-                          id="expDate"
-                          name="expDate"
-                          value={formData.expDate}
-                          onChange={handleInputChange}
+                          id="expiryDate"
+                          name="expiryDate"
+                          value={paymentInfo.expiryDate}
+                          onChange={handlePaymentChange}
                           placeholder="MM/YY"
                           required
                         />
@@ -265,8 +370,8 @@ const CheckoutProcess = () => {
                           className="form-control"
                           id="cvv"
                           name="cvv"
-                          value={formData.cvv}
-                          onChange={handleInputChange}
+                          value={paymentInfo.cvv}
+                          onChange={handlePaymentChange}
                           placeholder="123"
                           required
                         />
@@ -289,43 +394,35 @@ const CheckoutProcess = () => {
                     </div>
                   </div>
                 </div>
-              )}
-
-              {/* Step 3: Review Order */}
-              {currentStep === 3 && (
+                <div className="d-flex justify-content-between mt-4">
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary"
+                    onClick={goBack}
+                  >
+                    Back
+                  </button>
+                  <button type="submit" className="btn btn-primary">
+                    Continue
+                  </button>
+                </div>
+              </form>
+            )}
+            {/* Step 3: Review Order */}
+            {currentStep === 3 && (
+              <form onSubmit={handleSubmitOrder}>
                 <div className="card">
                   <div className="card-header bg-white">
                     <h3 className="fs-5 mb-0">Review Your Order</h3>
                   </div>
                   <div className="card-body">
-                    <h4 className="fs-6 fw-semibold mb-3">
-                      Shipping Information
-                    </h4>
-                    <p>
-                      {formData.firstName} {formData.lastName}
-                      <br />
-                      {formData.address}
-                      <br />
-                      {formData.city}, {formData.state} {formData.zipCode}
-                      <br />
-                      {formData.country}
-                    </p>
-
-                    <h4 className="fs-6 fw-semibold mb-3 mt-4">
-                      Payment Method
-                    </h4>
-                    <p>
-                      Credit Card ending in{" "}
-                      {formData.cardNumber.slice(-4) || "XXXX"}
-                    </p>
-
                     <h4 className="fs-6 fw-semibold mb-3 mt-4">Order Items</h4>
-                    {cartItems.map((item) => (
+                    {cart.map((item) => (
                       <div
                         key={item.id}
                         className="d-flex mb-3 border-bottom pb-3"
                       >
-                        <Image
+                        <img
                           src={item.image || "/placeholder.svg"}
                           alt={item.name}
                           width={80}
@@ -338,17 +435,15 @@ const CheckoutProcess = () => {
                             Quantity: {item.quantity}
                           </p>
                           <p className="fw-semibold">
-                            {formatPrice(item.price * item.quantity)}
+                            Price: ${item.price.toFixed(2)}
                           </p>
                         </div>
                       </div>
                     ))}
                   </div>
+                  <h3>Total: ${getCartTotal().toFixed(2)}</h3>
                 </div>
-              )}
-
-              <div className="d-flex justify-content-between mt-4">
-                {currentStep > 1 ? (
+                <div className="d-flex justify-content-between mt-4">
                   <button
                     type="button"
                     className="btn btn-outline-secondary"
@@ -356,88 +451,16 @@ const CheckoutProcess = () => {
                   >
                     Back
                   </button>
-                ) : (
-                  <div></div>
-                )}
-                <button type="submit" className="btn btn-primary">
-                  {currentStep < 3 ? "Continue" : "Place Order"}
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Order Summary */}
-          <div className="col-md-4">
-            <div className="card">
-              <div className="card-header bg-white">
-                <h3 className="fs-5 mb-0">Order Summary</h3>
-              </div>
-              <div className="card-body">
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Subtotal</span>
-                  <span>{formatPrice(subtotal)}</span>
+                  <button
+                    type="submit"
+                    className="btn btn-dark"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? "Processing..." : "Place Order"}
+                  </button>
                 </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Shipping</span>
-                  <span>{formatPrice(shipping)}</span>
-                </div>
-                <div className="d-flex justify-content-between mb-2">
-                  <span>Estimated Tax</span>
-                  <span>{formatPrice(tax)}</span>
-                </div>
-                <hr />
-                <div className="d-flex justify-content-between fw-bold">
-                  <span>Total</span>
-                  <span>{formatPrice(total)}</span>
-                </div>
-
-                <div className="mt-4">
-                  <h4 className="fs-6 fw-semibold mb-3">
-                    Order Items (
-                    {cartItems.reduce((sum, item) => sum + item.quantity, 0)})
-                  </h4>
-                  {cartItems.map((item) => (
-                    <div
-                      key={item.id}
-                      className="d-flex align-items-center mb-3"
-                    >
-                      <div
-                        className="me-3"
-                        style={{ width: "50px", height: "50px", flexShrink: 0 }}
-                      >
-                        <Image
-                          src={item.image || "/placeholder.svg"}
-                          alt={item.name}
-                          width={50}
-                          height={50}
-                          className="rounded"
-                        />
-                      </div>
-                      <div className="flex-grow-1">
-                        <p className="mb-0 small">{item.name}</p>
-                        <p className="mb-0 small text-muted">
-                          Qty: {item.quantity}
-                        </p>
-                      </div>
-                      <div className="ms-2 text-end">
-                        <p className="mb-0 small fw-semibold">
-                          {formatPrice(item.price * item.quantity)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-4 p-3 bg-light rounded">
-                  <div className="d-flex align-items-center">
-                    <CheckCircle size={20} className="text-success me-2" />
-                    <p className="mb-0 small">
-                      Your order qualifies for free shipping after checkout!
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
+              </form>
+            )}
           </div>
         </div>
       </div>
