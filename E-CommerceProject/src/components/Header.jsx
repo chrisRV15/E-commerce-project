@@ -2,15 +2,41 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { useCart } from "../CartContext";
+import { useNavigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 
 const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { getCartItemCount } = useCart();
   const cartItemCount = getCartItemCount();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+
+    if (token) {
+      try {
+        const decodedToken = jwtDecode(token);
+        const isTokenExpired = decodedToken.exp * 1000 < Date.now();
+
+        if (isTokenExpired) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setIsLoggedIn(false);
+          navigate("/login");
+        } else {
+          setIsLoggedIn(true);
+        }
+      } catch (error) {
+        console.error("Error decoding token:", error);
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setIsLoggedIn(false);
+        navigate("/login");
+      }
+    } else {
+      setIsLoggedIn(false);
+    }
   }, []);
 
   return (

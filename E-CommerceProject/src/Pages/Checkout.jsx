@@ -71,6 +71,7 @@ const CheckoutProcess = () => {
       // Format items for the API
       const items = cart.map((item) => ({
         productId: item.id,
+        name: item.name,
         quantity: item.quantity,
         price: item.price,
       }));
@@ -80,10 +81,7 @@ const CheckoutProcess = () => {
         items,
         shippingAddress,
         paymentInfo: {
-          // In a real app, you would handle payment securely
-          // For now, just indicate payment method
           method: "credit_card",
-          // Don't send actual card details to your server!
           last4Digits: paymentInfo.cardNumber.slice(-4),
         },
       };
@@ -181,7 +179,10 @@ const CheckoutProcess = () => {
             <div
               className="progress-bar"
               role="progressbar"
-              style={{ width: `${((currentStep - 1) / 2) * 100}%` }}
+              style={{
+                width: `${((currentStep - 1) / 2) * 100}%`,
+                backgroundColor: "black",
+              }}
               aria-valuenow={((currentStep - 1) / 2) * 100}
               aria-valuemin={0}
               aria-valuemax={100}
@@ -194,7 +195,7 @@ const CheckoutProcess = () => {
             {/* Step 1: Shipping Information */}
             {currentStep === 1 && (
               <form onSubmit={handleStepSubmit}>
-                <div className="card">
+                <div className="card" style={{ borderColor: "black" }}>
                   <div className="card-header bg-white">
                     <h3 className="fs-5 mb-0">Shipping Information</h3>
                   </div>
@@ -288,6 +289,7 @@ const CheckoutProcess = () => {
                           onChange={handleShippingChange}
                           required
                         >
+                          <option value="">Choose...</option>
                           <option value="United States">United States</option>
                           <option value="Canada">Canada</option>
                           <option value="Mexico">Mexico</option>
@@ -299,7 +301,7 @@ const CheckoutProcess = () => {
                 </div>
                 <div className="d-flex justify-content-between mt-4">
                   <div></div>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-dark">
                     Continue
                   </button>
                 </div>
@@ -308,7 +310,7 @@ const CheckoutProcess = () => {
             {/* Step 2: Payment Information */}
             {currentStep === 2 && (
               <form onSubmit={handleStepSubmit}>
-                <div className="card">
+                <div className="card" style={{ borderColor: "black" }}>
                   <div className="card-header bg-white">
                     <h3 className="fs-5 mb-0">Payment Information</h3>
                   </div>
@@ -397,12 +399,12 @@ const CheckoutProcess = () => {
                 <div className="d-flex justify-content-between mt-4">
                   <button
                     type="button"
-                    className="btn btn-outline-secondary"
+                    className="btn btn-outline-dark secondarybtn"
                     onClick={goBack}
                   >
                     Back
                   </button>
-                  <button type="submit" className="btn btn-primary">
+                  <button type="submit" className="btn btn-dark">
                     Continue
                   </button>
                 </div>
@@ -411,7 +413,7 @@ const CheckoutProcess = () => {
             {/* Step 3: Review Order */}
             {currentStep === 3 && (
               <form onSubmit={handleSubmitOrder}>
-                <div className="card">
+                <div className="card" style={{ borderColor: "black" }}>
                   <div className="card-header bg-white">
                     <h3 className="fs-5 mb-0">Review Your Order</h3>
                   </div>
@@ -420,7 +422,7 @@ const CheckoutProcess = () => {
                     {cart.map((item) => (
                       <div
                         key={item.id}
-                        className="d-flex mb-3 border-bottom pb-3"
+                        className="d-flex mb-3 border-bottom pb-3 border-black"
                       >
                         <img
                           src={item.image || "/placeholder.svg"}
@@ -441,12 +443,14 @@ const CheckoutProcess = () => {
                       </div>
                     ))}
                   </div>
-                  <h3>Total: ${getCartTotal().toFixed(2)}</h3>
+                  <h3 className="fs-4 mx-2">
+                    Total: ${getCartTotal().toFixed(2)}
+                  </h3>
                 </div>
                 <div className="d-flex justify-content-between mt-4">
                   <button
                     type="button"
-                    className="btn btn-outline-secondary"
+                    className="btn btn-outline-dark secondarybtn"
                     onClick={goBack}
                   >
                     Back

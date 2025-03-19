@@ -73,8 +73,11 @@ const OrderDetails = () => {
     <>
       <Header />
       <div className="container my-5">
-        <div className="card border-0 shadow-sm">
-          <div className="card-header bg-primary text-white">
+        <div
+          className="card border-2 shadow-sm"
+          style={{ borderColor: "black" }}
+        >
+          <div className="card-header bg-dark text-white">
             <h2 className="mb-0">Order Confirmation</h2>
           </div>
 
@@ -96,7 +99,7 @@ const OrderDetails = () => {
                     </p>
                     <p className="card-text">
                       <strong>Total Amount:</strong>{" "}
-                      <span className="text-primary fw-bold">
+                      <span className="text-dark fw-bold">
                         ${order.totalAmount.toFixed(2)}
                       </span>
                     </p>
@@ -184,10 +187,10 @@ const OrderDetails = () => {
             </div>
 
             <div className="d-flex gap-2 justify-content-end">
-              <Link to="/orders" className="btn btn-outline-secondary">
-                <i className="bi bi-arrow-left me-1"></i> View All Orders
+              <Link to="/account" className="btn btn-outline-dark secondarybtn">
+                <i className="bi bi-arrow-left me-1"></i> Go to Account
               </Link>
-              <Link to="/" className="btn btn-primary">
+              <Link to="/" className="btn btn-dark">
                 <i className="bi bi-cart me-1"></i> Continue Shopping
               </Link>
             </div>

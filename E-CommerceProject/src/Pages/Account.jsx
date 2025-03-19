@@ -1,4 +1,4 @@
-import Register from "./CreateAccount";
+import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -7,8 +7,10 @@ import "../styles.css";
 const Account = () => {
   const [activeTab, setActiveTab] = useState("account");
   const [user, setUser] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -58,6 +60,44 @@ const Account = () => {
     fetchUser();
   }, []);
 
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          throw new Error("Not authenticated");
+        }
+
+        const response = await fetch("http://localhost:5050/order", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch orders");
+        }
+
+        const data = await response.json();
+        setOrders(data);
+      } catch (error) {
+        console.error("Error fetching orders:", error);
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    console.log("You are logged out");
+    navigate("/");
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
   if (!user)
@@ -76,46 +116,24 @@ const Account = () => {
           <div className="col-lg-4 mb-4">
             <div className="card border-0 shadow">
               <div className="card-body text-center">
-                <img
-                  src="/placeholder.svg?height=150&width=150"
-                  className="rounded-circle mb-3"
-                  alt="User Avatar"
-                  width="150"
-                  height="150"
-                />
-                <h4 className="fw-bold">
+                <h4 className="fw-bold mt-3">
                   {user.firstName} {user.lastName}
                 </h4>
-                <p className="text-muted">Premium Member</p>
+                <p className="text-muted">Member</p>
                 <div className="d-flex justify-content-center gap-2">
-                  <button className="btn btn-primary">Edit Profile</button>
-                  <button className="btn btn-outline-secondary">
-                    Messages
-                  </button>
-                </div>
-
-                <div className="mt-4">
-                  <div className="d-flex justify-content-between mb-2">
-                    <span className="text-muted">Profile Completion</span>
-                    <span className="text-muted">85%</span>
-                  </div>
-                  <div className="progress" style={{ height: "8px" }}>
-                    <div
-                      className="progress-bar bg-success"
-                      role="progressbar"
-                      style={{ width: "85%" }}
-                      aria-valuenow={85}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    ></div>
-                  </div>
+                  <button className="btn btn-dark">Edit Profile</button>
                 </div>
               </div>
             </div>
 
             <div className="card border-0 shadow mt-4">
               <div className="card-body">
-                <button className="btn btn-dark w-100 mt-3">Log Off</button>
+                <button
+                  onClick={handleLogout}
+                  className="btn btn-dark w-100 mt-3"
+                >
+                  Log Off
+                </button>
               </div>
             </div>
           </div>
@@ -183,7 +201,7 @@ const Account = () => {
                             type="text"
                             className="form-control"
                             id="firstName"
-                            defaultValue="John"
+                            placeholder="firstName"
                           />
                         </div>
                         <div className="col-md-6">
@@ -194,7 +212,7 @@ const Account = () => {
                             type="text"
                             className="form-control"
                             id="lastName"
-                            defaultValue="Doe"
+                            placeholder="lastName"
                           />
                         </div>
                       </div>
@@ -207,7 +225,7 @@ const Account = () => {
                           type="email"
                           className="form-control"
                           id="email"
-                          defaultValue="john.doe@example.com"
+                          defaultValue="email@example.com"
                         />
                       </div>
 
@@ -235,26 +253,14 @@ const Account = () => {
                         ></textarea>
                       </div>
 
-                      <div className="mb-3">
-                        <label htmlFor="bio" className="form-label">
-                          Bio
-                        </label>
-                        <textarea
-                          className="form-control"
-                          id="bio"
-                          rows={3}
-                          defaultValue="Product designer and developer based in New York."
-                        ></textarea>
-                      </div>
-
                       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
                         <button
                           type="button"
-                          className="btn btn-outline-secondary me-md-2"
+                          className="btn btn-outline-dark me-md-2 secondarybtn"
                         >
                           Cancel
                         </button>
-                        <button type="submit" className="btn btn-primary">
+                        <button type="submit" className="btn btn-dark">
                           Save Changes
                         </button>
                       </div>
@@ -275,111 +281,41 @@ const Account = () => {
                             <th scope="col">Product</th>
                             <th scope="col">Amount</th>
                             <th scope="col">Status</th>
-                            <th scope="col">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>#ORD-7895</td>
-                            <td>Sep 25, 2023</td>
-                            <td>Premium Plan - Annual</td>
-                            <td>$199.99</td>
-                            <td>
-                              <span className="badge bg-success">
-                                Completed
-                              </span>
-                            </td>
-                            <td>
-                              <button className="btn btn-sm btn-outline-primary">
-                                View
-                              </button>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>#ORD-7823</td>
-                            <td>Aug 12, 2023</td>
-                            <td>Design Course Bundle</td>
-                            <td>$89.99</td>
-                            <td>
-                              <span className="badge bg-success">
-                                Completed
-                              </span>
-                            </td>
-                            <td>
-                              <button className="btn btn-sm btn-outline-primary">
-                                View
-                              </button>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>#ORD-7801</td>
-                            <td>Jul 05, 2023</td>
-                            <td>UI Component Library</td>
-                            <td>$59.99</td>
-                            <td>
-                              <span className="badge bg-success">
-                                Completed
-                              </span>
-                            </td>
-                            <td>
-                              <button className="btn btn-sm btn-outline-primary">
-                                View
-                              </button>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>#ORD-7756</td>
-                            <td>Jun 18, 2023</td>
-                            <td>Premium Plan - Monthly</td>
-                            <td>$19.99</td>
-                            <td>
-                              <span className="badge bg-secondary">
-                                Refunded
-                              </span>
-                            </td>
-                            <td>
-                              <button className="btn btn-sm btn-outline-primary">
-                                View
-                              </button>
-                            </td>
-                          </tr>
+                          {orders.map((order) => (
+                            <tr key={order._id}>
+                              <td>#{order._id.substring(0, 8)}</td>
+                              <td>
+                                {new Date(order.orderDate).toLocaleDateString()}
+                              </td>
+                              <td>
+                                {order.items.length > 0
+                                  ? order.items[0].name +
+                                    (order.items.length > 1
+                                      ? ` + ${order.items.length - 1} more`
+                                      : "")
+                                  : "N/A"}
+                              </td>
+                              <td>${order.totalAmount.toFixed(2)}</td>
+                              <td>
+                                <span
+                                  className={`badge ${
+                                    order.status === "Completed"
+                                      ? "bg-success"
+                                      : "bg-secondary"
+                                  }`}
+                                >
+                                  {order.status}
+                                </span>
+                              </td>
+                              <td></td>
+                            </tr>
+                          ))}
                         </tbody>
                       </table>
                     </div>
-                    <nav aria-label="Purchase history pagination">
-                      <ul className="pagination justify-content-center">
-                        <li className="page-item disabled">
-                          <a
-                            className="page-link"
-                            href="#"
-                            tabIndex={-1}
-                            aria-disabled="true"
-                          >
-                            Previous
-                          </a>
-                        </li>
-                        <li className="page-item active">
-                          <a className="page-link" href="#">
-                            1
-                          </a>
-                        </li>
-                        <li className="page-item">
-                          <a className="page-link" href="#">
-                            2
-                          </a>
-                        </li>
-                        <li className="page-item">
-                          <a className="page-link" href="#">
-                            3
-                          </a>
-                        </li>
-                        <li className="page-item">
-                          <a className="page-link" href="#">
-                            Next
-                          </a>
-                        </li>
-                      </ul>
-                    </nav>
                   </div>
                 )}
 
@@ -388,7 +324,7 @@ const Account = () => {
                   <div>
                     <div className="d-flex justify-content-between align-items-center mb-4">
                       <h5 className="card-title mb-0">Payment Methods</h5>
-                      <button className="btn btn-primary btn-sm">
+                      <button className="btn btn-dark btn-sm">
                         Add New Card
                       </button>
                     </div>
@@ -408,38 +344,8 @@ const Account = () => {
                             </div>
                           </div>
                           <div>
-                            <span className="badge bg-primary me-2">
-                              Default
-                            </span>
-                            <button className="btn btn-sm btn-outline-secondary">
-                              Edit
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="card mb-3 border">
-                      <div className="card-body">
-                        <div className="d-flex justify-content-between align-items-center">
-                          <div className="d-flex align-items-center">
-                            <div className="me-3">
-                              <i className="bi bi-credit-card fs-3"></i>
-                            </div>
-                            <div>
-                              <h6 className="mb-0">
-                                Mastercard ending in 8790
-                              </h6>
-                              <small className="text-muted">
-                                Expires 12/2024
-                              </small>
-                            </div>
-                          </div>
-                          <div>
-                            <button className="btn btn-sm btn-outline-secondary me-2">
-                              Make Default
-                            </button>
-                            <button className="btn btn-sm btn-outline-secondary">
+                            <span className="badge bg-dark me-2">Default</span>
+                            <button className="btn btn-sm btn-outline-dark secondarybtn">
                               Edit
                             </button>
                           </div>
@@ -528,7 +434,7 @@ const Account = () => {
                       </div>
 
                       <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-                        <button type="submit" className="btn btn-primary">
+                        <button type="submit" className="btn btn-dark">
                           Save Address
                         </button>
                       </div>
@@ -584,87 +490,6 @@ const Account = () => {
                           Update Password
                         </button>
                       </form>
-                    </div>
-
-                    <div className="mb-5">
-                      <h6 className="fw-bold mb-3">
-                        Two-Factor Authentication
-                      </h6>
-                      <div className="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                          <p className="mb-0">
-                            Add an extra layer of security to your account
-                          </p>
-                          <small className="text-muted">
-                            We'll send a verification code to your phone when
-                            you sign in.
-                          </small>
-                        </div>
-                        <div className="form-check form-switch">
-                          <input
-                            className="form-check-input"
-                            type="checkbox"
-                            id="twoFactorSwitch"
-                          />
-                        </div>
-                      </div>
-                      <button className="btn btn-outline-primary">
-                        Set Up Two-Factor Authentication
-                      </button>
-                    </div>
-
-                    <div className="mb-5">
-                      <h6 className="fw-bold mb-3">Login Sessions</h6>
-                      <p className="text-muted mb-3">
-                        These are devices that have logged into your account.
-                        Revoke any sessions that you do not recognize.
-                      </p>
-
-                      <div className="card mb-2 border">
-                        <div className="card-body">
-                          <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                              <h6 className="mb-0">MacBook Pro - New York</h6>
-                              <small className="text-muted">
-                                Current active device
-                              </small>
-                            </div>
-                            <span className="badge bg-success">Active Now</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="card mb-2 border">
-                        <div className="card-body">
-                          <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                              <h6 className="mb-0">iPhone 13 - New York</h6>
-                              <small className="text-muted">
-                                Last active: 2 hours ago
-                              </small>
-                            </div>
-                            <button className="btn btn-sm btn-outline-danger">
-                              Revoke
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="card mb-2 border">
-                        <div className="card-body">
-                          <div className="d-flex justify-content-between align-items-center">
-                            <div>
-                              <h6 className="mb-0">Windows PC - Chicago</h6>
-                              <small className="text-muted">
-                                Last active: Yesterday at 2:43 PM
-                              </small>
-                            </div>
-                            <button className="btn btn-sm btn-outline-danger">
-                              Revoke
-                            </button>
-                          </div>
-                        </div>
-                      </div>
                     </div>
 
                     <div>
